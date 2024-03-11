@@ -1,71 +1,53 @@
 package com.conrradocamacho.forum.service
 
-import com.conrradocamacho.forum.model.Course
+import com.conrradocamacho.forum.dto.TopicForm
+import com.conrradocamacho.forum.dto.TopicView
 import com.conrradocamacho.forum.model.Topic
-import com.conrradocamacho.forum.model.User
 import org.springframework.stereotype.Service
+import java.util.stream.Collectors
 
 @Service
-class TopicService(private var topics: List<Topic>) {
+class TopicService(
+    private var topics: List<Topic> = listOf(),
+    private val courseService: CourseService,
+    private val userService: UserService
+) {
 
-    init {
-        val topic = Topic(
-            id = 1,
-            title = "Duvida Kotlin",
-            message = "Variaveis no Kotlin",
-            course = Course(
-                id = 1,
-                name = "Kotlin",
-                category = "Programação"
-            ),
-            author = User(
-                id = 1,
-                name = "Ana da Silva",
-                email = "ana@email.com"
+    fun list(): List<TopicView> {
+        return topics.stream().map {
+            TopicView(
+                id = it.id,
+                title = it.title,
+                message = it.message,
+                status = it.status,
+                createDate = it.createDate
             )
-        )
-
-        val topic2 = Topic(
-            id = 2,
-            title = "Duvida Kotlin 2",
-            message = "Variaveis no Kotlin 2",
-            course = Course(
-                id = 1,
-                name = "Kotlin",
-                category = "Programação"
-            ),
-            author = User(
-                id = 1,
-                name = "Ana da Silva",
-                email = "ana@email.com"
-            )
-        )
-
-        val topic3 = Topic(
-            id = 3,
-            title = "Duvida Kotlin 3",
-            message = "Variaveis no Kotlin 3",
-            course = Course(
-                id = 1,
-                name = "Kotlin",
-                category = "Programação"
-            ),
-            author = User(
-                id = 1,
-                name = "Ana da Silva",
-                email = "ana@email.com"
-            )
-        )
-
-        topics = listOf(topic, topic2, topic3)
-    }
-    fun list(): List<Topic> {
-        return topics
+        }.collect(Collectors.toList())
     }
 
-    fun searchById(id: Long): Topic {
-        return topics.stream().filter {
+    fun searchById(id: Long): TopicView {
+        val topic = topics.stream().filter {
             it.id == id
         }.findFirst().get()
+        return TopicView(
+            id = topic.id,
+            title = topic.title,
+            message = topic.message,
+            status = topic.status,
+            createDate = topic.createDate
+        )
+    }
+
+    fun register(form: TopicForm) {
+
+        topics = topics.plus(
+            Topic(
+                id = topics.size.toLong() + 1,
+                title = form.title,
+                message = form.message,
+                course = courseService.searchById(form.courseId),
+                author = userService.searchById(form.authorId)
+            )
+        )
     }
 }
