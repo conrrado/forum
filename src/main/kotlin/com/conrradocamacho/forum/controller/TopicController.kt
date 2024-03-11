@@ -3,6 +3,7 @@ package com.conrradocamacho.forum.controller
 import com.conrradocamacho.forum.dto.TopicForm
 import com.conrradocamacho.forum.dto.TopicView
 import com.conrradocamacho.forum.service.TopicService
+import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -25,7 +26,7 @@ class TopicController(private val service: TopicService) {
     }
 
     @PostMapping
-    fun register(@RequestBody form: TopicForm) {
+    fun register(@RequestBody @Valid form: TopicForm) {
         service.register(form)
     }
 }
