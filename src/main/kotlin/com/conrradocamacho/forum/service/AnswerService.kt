@@ -3,6 +3,7 @@ package com.conrradocamacho.forum.service
 import com.conrradocamacho.forum.dto.AnswerForm
 import com.conrradocamacho.forum.dto.AnswerView
 import com.conrradocamacho.forum.dto.UpdatedAnswerForm
+import com.conrradocamacho.forum.exception.NotFoundException
 import com.conrradocamacho.forum.mapper.AnswerFormMapper
 import com.conrradocamacho.forum.mapper.AnswerViewMapper
 import com.conrradocamacho.forum.model.Answer
@@ -13,7 +14,8 @@ import java.util.stream.Collectors
 class AnswerService(
     private var answers: List<Answer>,
     private val answerFormMapper: AnswerFormMapper,
-    private val answerViewMapper: AnswerViewMapper
+    private val answerViewMapper: AnswerViewMapper,
+    private val notFoundMessage: String = "Answer not found"
 ) {
 
     fun listByTopicId(topicId: Long): List<AnswerView> {
@@ -53,6 +55,6 @@ class AnswerService(
     private fun getAnswerById(id: Long): Answer {
         return answers.stream().filter {
             it.id == id
-        }.findFirst().get()
+        }.findFirst().orElseThrow{ NotFoundException(notFoundMessage) }
     }
 }
