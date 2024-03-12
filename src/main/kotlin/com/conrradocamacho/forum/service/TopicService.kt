@@ -2,6 +2,7 @@ package com.conrradocamacho.forum.service
 
 import com.conrradocamacho.forum.dto.TopicForm
 import com.conrradocamacho.forum.dto.TopicView
+import com.conrradocamacho.forum.dto.UpdatedTopicForm
 import com.conrradocamacho.forum.mapper.TopicFormMapper
 import com.conrradocamacho.forum.mapper.TopicViewMapper
 import com.conrradocamacho.forum.model.Topic
@@ -36,5 +37,29 @@ class TopicService(
         val topic = topicFormMapper.map(form)
         topic.id = topics.size.toLong() + 1
         topics = topics.plus(topic)
+    }
+
+    fun update(form: UpdatedTopicForm) {
+        val topic = topics.stream().filter {
+            it.id == form.id
+        }.findFirst().get()
+        topics = topics.minus(topic).plus(
+            Topic(
+            id = form.id,
+            title = form.title,
+            message = form.message,
+            course = topic.course,
+            author = topic.author,
+            answers = topic.answers,
+            status = topic.status,
+            createDate = topic.createDate
+        ))
+    }
+
+    fun remove(id: Long) {
+        val topic = topics.stream().filter {
+            it.id == id
+        }.findFirst().get()
+        topics = topics.minus(topic)
     }
 }
