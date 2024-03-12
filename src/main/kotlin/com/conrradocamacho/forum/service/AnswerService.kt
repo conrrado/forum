@@ -1,60 +1,31 @@
 package com.conrradocamacho.forum.service
 
+import com.conrradocamacho.forum.dto.AnswerForm
+import com.conrradocamacho.forum.dto.AnswerView
+import com.conrradocamacho.forum.mapper.AnswerFormMapper
+import com.conrradocamacho.forum.mapper.AnswerViewMapper
 import com.conrradocamacho.forum.model.Answer
-import com.conrradocamacho.forum.model.Course
-import com.conrradocamacho.forum.model.Topic
-import com.conrradocamacho.forum.model.User
 import org.springframework.stereotype.Service
+import java.util.stream.Collectors
 
 @Service
-class AnswerService(private var answers: List<Answer>) {
+class AnswerService(
+    private var answers: List<Answer>,
+    private val answerFormMapper: AnswerFormMapper,
+    private val answerViewMapper: AnswerViewMapper
+) {
 
-    init {
-        val topic = Topic(
-            id = 1,
-            title = "Duvida Kotlin",
-            message = "Variaveis no Kotlin",
-            course = Course(
-                id = 1,
-                name = "Kotlin",
-                category = "Programação"
-            ),
-            author = User(
-                id = 1,
-                name = "Ana da Silva",
-                email = "ana@email.com"
-            )
-        )
-
-        val answer = Answer(
-            id = 1,
-            message = "resposta 1",
-            author = User(
-                id = 2,
-                name = "João",
-                email = "joao@email.com"
-            ),
-            topic = topic,
-            fixed = false
-        )
-
-        val answer2 = Answer(
-            id = 2,
-            message = "resposta 2",
-            author = User(
-                id = 3,
-                name = "Luis",
-                email = "luis@email.com"
-            ),
-            topic = topic,
-            fixed = false
-        )
-
-        answers = listOf(answer, answer2)
-    }
-    fun listByTopicId(topicId: Long): List<Answer> {
+    fun listByTopicId(topicId: Long): List<AnswerView> {
         return answers.stream().filter {
             it.topic.id == topicId
-        }.toList()
+        }.map {
+            answerViewMapper.map(it)
+        }.collect(Collectors.toList())
+    }
+
+    fun register(form: AnswerForm) {
+        val answer = answerFormMapper.map(form)
+        answer.id = answers.size.toLong() + 1
+        answers = answers.plus(answer)
     }
 }

@@ -28,6 +28,10 @@ class TopicService(
         return topicViewMapper.map(topic)
     }
 
+    fun getTopicById(id: Long): Topic {
+        return topics.stream().filter { it.id == id }.findFirst().get()
+    }
+
     fun register(form: TopicForm) {
         val topic = topicFormMapper.map(form)
         topic.id = topics.size.toLong() + 1
