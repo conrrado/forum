@@ -3,6 +3,7 @@ package com.conrradocamacho.forum.service
 import com.conrradocamacho.forum.dto.TopicForm
 import com.conrradocamacho.forum.dto.TopicView
 import com.conrradocamacho.forum.dto.UpdatedTopicForm
+import com.conrradocamacho.forum.exception.NotFoundException
 import com.conrradocamacho.forum.mapper.TopicFormMapper
 import com.conrradocamacho.forum.mapper.TopicViewMapper
 import com.conrradocamacho.forum.model.Topic
@@ -13,7 +14,8 @@ import java.util.stream.Collectors
 class TopicService(
     private var topics: List<Topic> = listOf(),
     private val topicViewMapper: TopicViewMapper,
-    private val topicFormMapper: TopicFormMapper
+    private val topicFormMapper: TopicFormMapper,
+    private val notFoundMessage: String = "Topic not found"
 ) {
 
     fun list(): List<TopicView> {
@@ -25,7 +27,7 @@ class TopicService(
     fun searchById(id: Long): TopicView {
         val topic = topics.stream().filter {
             it.id == id
-        }.findFirst().get()
+        }.findFirst().orElseThrow{NotFoundException(notFoundMessage)}
         return topicViewMapper.map(topic)
     }
 
@@ -43,7 +45,7 @@ class TopicService(
     fun update(form: UpdatedTopicForm): TopicView {
         val topic = topics.stream().filter {
             it.id == form.id
-        }.findFirst().get()
+        }.findFirst().orElseThrow{NotFoundException(notFoundMessage)}
         val updatedTopic = Topic(
             id = form.id,
             title = form.title,
@@ -61,7 +63,7 @@ class TopicService(
     fun remove(id: Long) {
         val topic = topics.stream().filter {
             it.id == id
-        }.findFirst().get()
+        }.findFirst().orElseThrow{NotFoundException(notFoundMessage)}
         topics = topics.minus(topic)
     }
 }
